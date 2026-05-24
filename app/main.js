@@ -7,8 +7,8 @@ const extReadable = ['.txt', '.md', '.js', '.json', '.html', '.css'];
 
 function createWindow() {
   const win = new BrowserWindow({
-    width: 900,
-    height: 600,
+    width: 0,
+    height: 0,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true
