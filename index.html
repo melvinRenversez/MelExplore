@@ -1,581 +1,364 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Explorateur de fichiers</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explorateur de fichiers</title>
 
-<style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: "Segoe UI", Arial, sans-serif;
-    }
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
 
-    body {
-        background: #1e1f24;
-        color: #eaeaea;
-        height: 100dvh;
-        max-height: 100dvh;
-        display: flex;
-    }
+        body {
+            background: #1e1f24;
+            color: #eaeaea;
+            height: 100dvh;
+            max-height: 100dvh;
+            display: flex;
+        }
 
-    /* largeur de la scrollbar */
-    ::-webkit-scrollbar {
-        width: 6px;
-        height: 10px;
-    }
+        /* largeur de la scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 10px;
+        }
 
-    /* fond de la scrollbar */
-    ::-webkit-scrollbar-track {
-        background: transparent;
-        border-radius: 10px;
-    }
+        /* fond de la scrollbar */
+        ::-webkit-scrollbar-track {
+            background: transparent;
+            border-radius: 10px;
+        }
 
-    /* partie mobile (le curseur) */
-    ::-webkit-scrollbar-thumb {
-        background: #555;
-        border-radius: 10px;
-    }
+        /* partie mobile (le curseur) */
+        ::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 10px;
+        }
 
-    /* hover */
-    ::-webkit-scrollbar-thumb:hover {
-        background: #888;
-    }
+        /* hover */
+        ::-webkit-scrollbar-thumb:hover {
+            background: #888;
+        }
 
-    /* MAIN */
-    .main {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-    }
+        /* MAIN */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
 
-    /* TOP BAR */
-    .topbar {
-        height: 60px;
-        background: #181a20;
-        display: flex;
-        align-items: center;
-        padding: 0 20px;
-        border-bottom: 1px solid #2a2b33;
-        gap: 10px;
-    }
+        /* TOP BAR */
+        .topbar {
+            height: 60px;
+            background: #18191b;
 
-    .url {
-        flex: 1;
-        background: #2a2b33;
-        border: none;
-        padding: 10px 15px;
-        border-radius: 8px;
-        color: white;
-        outline: none;
-    }
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            border-bottom: 1px solid #2a2b33;
+            gap: 10px;
+        }
 
-    .back {
-        font-size: 18px;
-        color: #aaa;
-        cursor: pointer;
-        transition: 0.2s;
-        background: none;
-        border: none;
-        padding: 5px 10px;
-    }
+        .url {
+            flex: 1;
+            background: #2a2b33;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            color: white;
+            outline: none;
+        }
 
-    /* line AREA */
-    .content {
-        flex: 1;
-        max-width: 100dvw;
-        
-        display: flex;
+        .back {
+            font-size: 18px;
+            color: #aaa;
+            cursor: pointer;
+            transition: 0.2s;
+            background: none;
+            border: none;
+            padding: 5px 10px;
+        }
 
-        gap: 15px;
+        /* line AREA */
+        .content {
+            flex: 1;
+            max-width: 100dvw;
 
+            display: flex;
 
-        overflow-y: scroll;
-
-        
-    }
-    
-    .scroller {
-        flex: 1;
-        padding: 20px;
-        
-        display: flex;
-        flex-direction: column;
-
-        gap: 15px;
+            gap: 15px;
 
 
-        overflow-y: scroll;
-    }
+            overflow-y: scroll;
 
-    .line {
-        background: #2a2b33;
-        padding: 15px;
-        border-radius: 12px;
-        cursor: pointer;
-        transition: 0.2s;
-
-        display: flex;
-        align-items: center;
-    }
-
-    .line:hover {
-        background: #3a3c46;
-        transform: translateY(-3px);
-    }
+            padding: 15px;
 
 
-    .filename {
-        font-size: 13px;
-        color: #ddd;
-        word-break: break-word;
+        }
 
-        flex: 1;
-    }
+        .scroller {
+            flex: 1;
+            padding: 20px;
 
-    .size {
-        font-size: 12px;
-        color: #aaa;
-        margin-left: 10px;
-        
-        flex: 1;
-        text-align: right;
-    }
+            display: flex;
+            flex-direction: column;
 
-    .type {
-        font-size: 12px;
-        color: #888;
-        margin-left: 10px;
+            gap: 15px;
 
-        text-align: center;
-
-    }
-
-    .fileLector {
-        width: 0px;
-        height: 100%;
-        max-height: 100%;
-
-        display: flex;
-        flex-direction: column;
-
-        gap: 20px;
-
-        transition: width .8s ease-out;
-    }
-
-    .fileLector.actif {
-
-        padding: 20px;
-
-        width: 35%;
-    }
-
-    .fileContent {
-        overflow-y: scroll;
-
-        word-wrap: break-word;
-        white-space: pre-wrap;
-    }
-
-    .fileLector .header {
-        justify-content: space-between;
-    }
+            overflow-y: scroll;
 
 
+            border-radius: 10px;
+            background: #18191b;
+        }
 
-    .fileLector .header {
-        display: none;
-    }
+        .line {
+            background: #2a2b33;
+            padding: 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.2s;
 
-     .fileLector.actif .header{
-        display: flex;
+            display: flex;
+            align-items: center;
+        }
 
-    }
-
-    .closeFileLector {
-        background: none;
-        border: none;
-    }
-
-    .closeFileLector svg:hover {
-
-        cursor: pointer;
-    }
+        .line:hover {
+            background: #3a3c46;
+            transform: translateY(-3px);
+        }
 
 
-</style>
+        .filename {
+            font-size: 13px;
+            color: #ddd;
+            word-break: break-word;
+
+            flex: 1;
+        }
+
+        .size {
+            font-size: 12px;
+            color: #aaa;
+            margin-left: 10px;
+
+            flex: 1;
+            text-align: right;
+        }
+
+        .type {
+            font-size: 12px;
+            color: #888;
+            margin-left: 10px;
+
+            text-align: center;
+
+        }
+
+        .fileLector {
+            width: 0px;
+            height: 100%;
+            max-height: 100%;
+
+            display: flex;
+            flex-direction: column;
+
+            gap: 20px;
+
+            transition: width .8s ease-out;
+
+            border-radius: 10px;
+            background: #18191b;
+        }
+
+        .fileLector.actif {
+
+            padding: 20px;
+
+            width: 35%;
+        }
+
+        .fileContent {
+            overflow-y: scroll;
+
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+
+
+        .fileLector .header {
+            justify-content: space-between;
+        }
+
+
+
+        .fileLector .header {
+            display: none;
+        }
+
+        .fileLector.actif .header {
+            display: flex;
+
+        }
+
+        .closeFileLector {
+            background: none;
+            border: none;
+        }
+
+        .closeFileLector svg:hover {
+
+            cursor: pointer;
+        }
+    </style>
 </head>
 
 <body>
 
-<div class="main">
+    <div class="main">
 
-    <div class="topbar">
-        <button class="back" onclick="goback()">←</button>
-        <div class="url">C:\Users\Utilisateur\Documents</div>
-    </div>
-
-    <div class="content">
-
-        <div class="scroller" id="scroller">
-            <div class="line">
-                <div class="filename">rapport.txt</div>
-                <div class="type">file</div>
-                <div class="size">1.2 KB</div>
-
-            </div>
-
-            <div class="line">
-                <div class="filename">Projet Minecraft</div>
-                <div class="type">folder</div>
-                <div class="size">5.7 MB</div>
-            </div>
-
-            <div class="line">
-                <div class="filename">image.png</div>
-                <div class="type">file</div>
-                <div class="size">2.1 MB</div>
-            </div>
-
-            <div class="line">
-                <div class="filename">musique.mp3</div>
-                <div class="type">file</div>
-                <div class="size">4.5 MB</div>
-            </div>
-
-            <div class="line">
-                <div class="filename">notes.md</div>
-                <div class="type">file</div>
-                <div class="size">800 KB</div>
-            </div>
-            <div class="line">
-                <div class="filename">rapport.txt</div>
-                <div class="type">file</div>
-                <div class="size">1.2 KB</div>
-
-            </div>
-
-            <div class="line">
-                <div class="filename">Projet Minecraft</div>
-                <div class="type">folder</div>
-                <div class="size">5.7 MB</div>
-            </div>
-
-            <div class="line">
-                <div class="filename">image.png</div>
-                <div class="type">file</div>
-                <div class="size">2.1 MB</div>
-            </div>
-
-            <div class="line">
-                <div class="filename">musique.mp3</div>
-                <div class="type">file</div>
-                <div class="size">4.5 MB</div>
-            </div>
-
-            <div class="line">
-                <div class="filename">notes.md</div>
-                <div class="type">file</div>
-                <div class="size">800 KB</div>
-            </div>
-            <div class="line">
-                <div class="filename">rapport.txt</div>
-                <div class="type">file</div>
-                <div class="size">1.2 KB</div>
-
-            </div>
-
-            <div class="line">
-                <div class="filename">Projet Minecraft</div>
-                <div class="type">folder</div>
-                <div class="size">5.7 MB</div>
-            </div>
-
-            <div class="line">
-                <div class="filename">image.png</div>
-                <div class="type">file</div>
-                <div class="size">2.1 MB</div>
-            </div>
-
-            <div class="line">
-                <div class="filename">musique.mp3</div>
-                <div class="type">file</div>
-                <div class="size">4.5 MB</div>
-            </div>
-
-            <div class="line">
-                <div class="filename">notes.md</div>
-                <div class="type">file</div>
-                <div class="size">800 KB</div>
-            </div>
-            <div class="line">
-                <div class="filename">rapport.txt</div>
-                <div class="type">file</div>
-                <div class="size">1.2 KB</div>
-
-            </div>
-
-            <div class="line">
-                <div class="filename">Projet Minecraft</div>
-                <div class="type">folder</div>
-                <div class="size">5.7 MB</div>
-            </div>
-
-            <div class="line">
-                <div class="filename">image.png</div>
-                <div class="type">file</div>
-                <div class="size">2.1 MB</div>
-            </div>
-
-            <div class="line">
-                <div class="filename">musique.mp3</div>
-                <div class="type">file</div>
-                <div class="size">4.5 MB</div>
-            </div>
-
-            <div class="line">
-                <div class="filename">notes.md</div>
-                <div class="type">file</div>
-                <div class="size">800 KB</div>
-            </div>
-            <div class="line">
-                <div class="filename">rapport.txt</div>
-                <div class="type">file</div>
-                <div class="size">1.2 KB</div>
-
-            </div>
-
-            <div class="line">
-                <div class="filename">Projet Minecraft</div>
-                <div class="type">folder</div>
-                <div class="size">5.7 MB</div>
-            </div>
-
-            <div class="line">
-                <div class="filename">image.png</div>
-                <div class="type">file</div>
-                <div class="size">2.1 MB</div>
-            </div>
-
-            <div class="line">
-                <div class="filename">musique.mp3</div>
-                <div class="type">file</div>
-                <div class="size">4.5 MB</div>
-            </div>
-
-            <div class="line">
-                <div class="filename">notes.md</div>
-                <div class="type">file</div>
-                <div class="size">800 KB</div>
-            </div>
-            <div class="line">
-                <div class="filename">rapport.txt</div>
-                <div class="type">file</div>
-                <div class="size">1.2 KB</div>
-
-            </div>
-
-            <div class="line">
-                <div class="filename">Projet Minecraft</div>
-                <div class="type">folder</div>
-                <div class="size">5.7 MB</div>
-            </div>
-
-            <div class="line">
-                <div class="filename">image.png</div>
-                <div class="type">file</div>
-                <div class="size">2.1 MB</div>
-            </div>
-
-            <div class="line">
-                <div class="filename">musique.mp3</div>
-                <div class="type">file</div>
-                <div class="size">4.5 MB</div>
-            </div>
-
-            <div class="line">
-                <div class="filename">notes.md</div>
-                <div class="type">file</div>
-                <div class="size">800 KB</div>
-            </div>
-            <div class="line">
-                <div class="filename">rapport.txt</div>
-                <div class="type">file</div>
-                <div class="size">1.2 KB</div>
-
-            </div>
-
-            <div class="line">
-                <div class="filename">Projet Minecraft</div>
-                <div class="type">folder</div>
-                <div class="size">5.7 MB</div>
-            </div>
-
-            <div class="line">
-                <div class="filename">image.png</div>
-                <div class="type">file</div>
-                <div class="size">2.1 MB</div>
-            </div>
-
-            <div class="line">
-                <div class="filename">musique.mp3</div>
-                <div class="type">file</div>
-                <div class="size">4.5 MB</div>
-            </div>
-
-            <div class="line">
-                <div class="filename">notes.md</div>
-                <div class="type">file</div>
-                <div class="size">800 KB</div>
-            </div>
-            <div class="line">
-                <div class="filename">rapport.txt</div>
-                <div class="type">file</div>
-                <div class="size">1.2 KB</div>
-
-            </div>
-
-            <div class="line">
-                <div class="filename">Projet Minecraft</div>
-                <div class="type">folder</div>
-                <div class="size">5.7 MB</div>
-            </div>
-
-            <div class="line">
-                <div class="filename">image.png</div>
-                <div class="type">file</div>
-                <div class="size">2.1 MB</div>
-            </div>
-
-            <div class="line">
-                <div class="filename">musique.mp3</div>
-                <div class="type">file</div>
-                <div class="size">4.5 MB</div>
-            </div>
-
-            <div class="line">
-                <div class="filename">notes.md</div>
-                <div class="type">file</div>
-                <div class="size">800 KB</div>
-            </div>
-
+        <div class="topbar">
+            <button class="back" onclick="goback()">←</button>
+            <div class="url">C:\Users\Utilisateur\Documents</div>
         </div>
 
+        <div class="content">
+
+            <div class="scroller" id="scroller"></div>
 
 
-        <div class="fileLector" id="fileLector">
 
-            <div class="header">
-                <div class="lectorFileName">  
-                    Livre.txt
+            <div class="fileLector" id="fileLector">
+
+                <div class="header">
+                    <div class="lectorFileName">
+                        Livre.txt
+                    </div>
+
+                    <button class="closeFileLector" onclick="closeFileLector()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24"
+                            fill="none">
+                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                d="M19.207 6.207a1 1 0 0 0-1.414-1.414L12 10.586 6.207 4.793a1 1 0 0 0-1.414 1.414L10.586 12l-5.793 5.793a1 1 0 1 0 1.414 1.414L12 13.414l5.793 5.793a1 1 0 0 0 1.414-1.414L13.414 12l5.793-5.793z"
+                                fill="#ffffff" />
+                        </svg>
+                    </button>
+
                 </div>
 
-                <button class="closeFileLector" onclick="closeFileLector()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M19.207 6.207a1 1 0 0 0-1.414-1.414L12 10.586 6.207 4.793a1 1 0 0 0-1.414 1.414L10.586 12l-5.793 5.793a1 1 0 1 0 1.414 1.414L12 13.414l5.793 5.793a1 1 0 0 0 1.414-1.414L13.414 12l5.793-5.793z" fill="#ffffff"/></svg>
-                </button>
+                <pre class="fileContent" id="fileContent"></pre>
 
             </div>
 
-            <pre class="fileContent">
-L’apothéose des souverains est peut-être de nos jours ce qui nous étonne le plus dans les cultes antiques. La raison en est facile à comprendre. Toutes les religions que pratique le monde actuel professent l’unité de Dieu. Quand on ne reconnaît qu’un Dieu, il devient si grand par sa solitude même, et sa grandeur le met si haut qu’il n’est plus possible d’élever un homme jusqu’à lui ; mais les anciens, qui étaient polythéistes, ne pouvaient pas avoir les mêmes scrupules : ce n’était pas une affaire d’adorer un dieu de plus, quand on en avait déjà plusieurs milliers. L’importance de ces dieux était d’ailleurs aussi diverse que leurs fonctions étaient variées, et parmi eux il y en avait beaucoup qui, plus humbles, plus modestes, se rapprochaient par degrés de la condition humaine. Il n’existait donc pas comme aujourd’hui de barrière infranchissable entre Dieu et l’homme ; au contraire, la religion semblait ménager entre eux une série de transitions qui conduisaient insensiblement de l’un à l’autre. Ces intermédiaires familiarisaient tout le monde avec l’idée qu’il n’est pas impossible de passer de l’humanité à la divinité. On sait qu’un système célèbre, imaginé chez les Grecs pour rendre compte de l’origine des religions, et qu’on appelait l’évhémérisme, du nom de son créateur, prétendait établir que tous les dieux avaient commencé par être des hommes que la reconnaissance ou la peur avait divinisés après leur mort. Ce qui fit le succès de ce système, c’est qu’il s’appuyait sur des croyances générales, et que, bien avant Evhémère, il y avait une sorte d’évhémérisme populaire et grossier qui donna créance à l’autre. Les légendes primitives de tous les peuples racontaient que d’anciens héros avaient obtenu le ciel en récompense de leur courage. Presque partout les villes importantes avaient coutume de rendre les honneurs divins à leur fondateur. Il devenait naturellement pour la cité un patron particulier, un protecteur spécial, et, comme il lui appartenait en propre, c’est à lui que le peuple avait surtout confiance, qu’il adressait le plus volontiers ses prières. Les gens éclairés étaient forcés eux-mêmes de témoigner pour lui beaucoup d’égards, et le patriotisme leur faisait un devoir d’être crédules ou de le paraître. Varron trouvait qu’après tout cette habitude qu’avaient les villes de mettre dans le ciel leurs fondateurs, quoi qu’on en pensât, pouvait avoir des conséquences heureuses, et qu’il n’était pas mauvais qu’un homme de cœur se crût issu des dieux.
-
-L’apothéose des souverains est peut-être de nos jours ce qui nous étonne le plus dans les cultes antiques. La raison en est facile à comprendre. Toutes les religions que pratique le monde actuel professent l’unité de Dieu. Quand on ne reconnaît qu’un Dieu, il devient si grand par sa solitude même, et sa grandeur le met si haut qu’il n’est plus possible d’élever un homme jusqu’à lui ; mais les anciens, qui étaient polythéistes, ne pouvaient pas avoir les mêmes scrupules : ce n’était pas une affaire d’adorer un dieu de plus, quand on en avait déjà plusieurs milliers. L’importance de ces dieux était d’ailleurs aussi diverse que leurs fonctions étaient variées, et parmi eux il y en avait beaucoup qui, plus humbles, plus modestes, se rapprochaient par degrés de la condition humaine. Il n’existait donc pas comme aujourd’hui de barrière infranchissable entre Dieu et l’homme ; au contraire, la religion semblait ménager entre eux une série de transitions qui conduisaient insensiblement de l’un à l’autre. Ces intermédiaires familiarisaient tout le monde avec l’idée qu’il n’est pas impossible de passer de l’humanité à la divinité. On sait qu’un système célèbre, imaginé chez les Grecs pour rendre compte de l’origine des religions, et qu’on appelait l’évhémérisme, du nom de son créateur, prétendait établir que tous les dieux avaient commencé par être des hommes que la reconnaissance ou la peur avait divinisés après leur mort. Ce qui fit le succès de ce système, c’est qu’il s’appuyait sur des croyances générales, et que, bien avant Evhémère, il y avait une sorte d’évhémérisme populaire et grossier qui donna créance à l’autre. Les légendes primitives de tous les peuples racontaient que d’anciens héros avaient obtenu le ciel en récompense de leur courage. Presque partout les villes importantes avaient coutume de rendre les honneurs divins à leur fondateur. Il devenait naturellement pour la cité un patron particulier, un protecteur spécial, et, comme il lui appartenait en propre, c’est à lui que le peuple avait surtout confiance, qu’il adressait le plus volontiers ses prières. Les gens éclairés étaient forcés eux-mêmes de témoigner pour lui beaucoup d’égards, et le patriotisme leur faisait un devoir d’être crédules ou de le paraître. Varron trouvait qu’après tout cette habitude qu’avaient les villes de mettre dans le ciel leurs fondateurs, quoi qu’on en pensât, pouvait avoir des conséquences heureuses, et qu’il n’était pas mauvais qu’un homme de cœur se crût issu des dieux.
-
-L’apothéose des souverains est peut-être de nos jours ce qui nous étonne le plus dans les cultes antiques. La raison en est facile à comprendre. Toutes les religions que pratique le monde actuel professent l’unité de Dieu. Quand on ne reconnaît qu’un Dieu, il devient si grand par sa solitude même, et sa grandeur le met si haut qu’il n’est plus possible d’élever un homme jusqu’à lui ; mais les anciens, qui étaient polythéistes, ne pouvaient pas avoir les mêmes scrupules : ce n’était pas une affaire d’adorer un dieu de plus, quand on en avait déjà plusieurs milliers. L’importance de ces dieux était d’ailleurs aussi diverse que leurs fonctions étaient variées, et parmi eux il y en avait beaucoup qui, plus humbles, plus modestes, se rapprochaient par degrés de la condition humaine. Il n’existait donc pas comme aujourd’hui de barrière infranchissable entre Dieu et l’homme ; au contraire, la religion semblait ménager entre eux une série de transitions qui conduisaient insensiblement de l’un à l’autre. Ces intermédiaires familiarisaient tout le monde avec l’idée qu’il n’est pas impossible de passer de l’humanité à la divinité. On sait qu’un système célèbre, imaginé chez les Grecs pour rendre compte de l’origine des religions, et qu’on appelait l’évhémérisme, du nom de son créateur, prétendait établir que tous les dieux avaient commencé par être des hommes que la reconnaissance ou la peur avait divinisés après leur mort. Ce qui fit le succès de ce système, c’est qu’il s’appuyait sur des croyances générales, et que, bien avant Evhémère, il y avait une sorte d’évhémérisme populaire et grossier qui donna créance à l’autre. Les légendes primitives de tous les peuples racontaient que d’anciens héros avaient obtenu le ciel en récompense de leur courage. Presque partout les villes importantes avaient coutume de rendre les honneurs divins à leur fondateur. Il devenait naturellement pour la cité un patron particulier, un protecteur spécial, et, comme il lui appartenait en propre, c’est à lui que le peuple avait surtout confiance, qu’il adressait le plus volontiers ses prières. Les gens éclairés étaient forcés eux-mêmes de témoigner pour lui beaucoup d’égards, et le patriotisme leur faisait un devoir d’être crédules ou de le paraître. Varron trouvait qu’après tout cette habitude qu’avaient les villes de mettre dans le ciel leurs fondateurs, quoi qu’on en pensât, pouvait avoir des conséquences heureuses, et qu’il n’était pas mauvais qu’un homme de cœur se crût issu des dieux.
-
-L’apothéose des souverains est peut-être de nos jours ce qui nous étonne le plus dans les cultes antiques. La raison en est facile à comprendre. Toutes les religions que pratique le monde actuel professent l’unité de Dieu. Quand on ne reconnaît qu’un Dieu, il devient si grand par sa solitude même, et sa grandeur le met si haut qu’il n’est plus possible d’élever un homme jusqu’à lui ; mais les anciens, qui étaient polythéistes, ne pouvaient pas avoir les mêmes scrupules : ce n’était pas une affaire d’adorer un dieu de plus, quand on en avait déjà plusieurs milliers. L’importance de ces dieux était d’ailleurs aussi diverse que leurs fonctions étaient variées, et parmi eux il y en avait beaucoup qui, plus humbles, plus modestes, se rapprochaient par degrés de la condition humaine. Il n’existait donc pas comme aujourd’hui de barrière infranchissable entre Dieu et l’homme ; au contraire, la religion semblait ménager entre eux une série de transitions qui conduisaient insensiblement de l’un à l’autre. Ces intermédiaires familiarisaient tout le monde avec l’idée qu’il n’est pas impossible de passer de l’humanité à la divinité. On sait qu’un système célèbre, imaginé chez les Grecs pour rendre compte de l’origine des religions, et qu’on appelait l’évhémérisme, du nom de son créateur, prétendait établir que tous les dieux avaient commencé par être des hommes que la reconnaissance ou la peur avait divinisés après leur mort. Ce qui fit le succès de ce système, c’est qu’il s’appuyait sur des croyances générales, et que, bien avant Evhémère, il y avait une sorte d’évhémérisme populaire et grossier qui donna créance à l’autre. Les légendes primitives de tous les peuples racontaient que d’anciens héros avaient obtenu le ciel en récompense de leur courage. Presque partout les villes importantes avaient coutume de rendre les honneurs divins à leur fondateur. Il devenait naturellement pour la cité un patron particulier, un protecteur spécial, et, comme il lui appartenait en propre, c’est à lui que le peuple avait surtout confiance, qu’il adressait le plus volontiers ses prières. Les gens éclairés étaient forcés eux-mêmes de témoigner pour lui beaucoup d’égards, et le patriotisme leur faisait un devoir d’être crédules ou de le paraître. Varron trouvait qu’après tout cette habitude qu’avaient les villes de mettre dans le ciel leurs fondateurs, quoi qu’on en pensât, pouvait avoir des conséquences heureuses, et qu’il n’était pas mauvais qu’un homme de cœur se crût issu des dieux.
-
-            </pre>
-
         </div>
-        
-    </div>
-<script>
+        <script>
 
-  const urlElement = document.querySelector('.url');
-  const scrollerElement = document.getElementById("scroller");
-  const fileLectorElement = document.getElementById("fileLector");
-
-
-    setTimeout(() => {
-        fileLectorElement.classList.add("actif");
-    }, 2000);
+            const urlElement = document.querySelector('.url');
+            const scrollerElement = document.getElementById("scroller");
+            const fileLectorElement = document.getElementById("fileLector");
+            const fileContent = document.getElementById("fileContent");
 
 
-  function getCurrentPath() {
-    window.api.getCurrentPath().then(path => {
-      urlElement.textContent = path;
+            function getCurrentPath() {
+                window.api.getCurrentPath().then(path => {
+                    urlElement.textContent = path;
 
-      getDirectoryContents();
+                    getDirectoryContents();
 
-    });
-  }
-
-
-  function getDirectoryContents() {
-    window.api.getDirectoryContents(urlElement.textContent).then(contents => {
-      let temp = ""
-
-      contents.forEach(item => {
-
-        const folder = item.isDirectory;
-        const l = item.name.split(".")
-        const ext = folder ? "Directory" : item.name.split(".")[l.length-1]
+                });
+            }
 
 
-        const onclick = `
-            onclick="stepTo('${item.name}')"
-        `
+            function getDirectoryContents() {
+                window.api.getDirectoryContents(urlElement.textContent).then(contents => {
+                    let temp = ""
 
-        const template = `
-          <div class="line" ${folder ? onclick : '' }>
-            <div class="filename">${item.name}</div>
-            <div class="type">${ext}</div>
-            <div class="size">${item.size} Kb</div>
-          </div>
-        `
+                    contents.forEach(item => {
 
-        temp += template
-      })
+                        const folder = item.isDirectory;
+                        const l = item.name.split(".")
+                        const ext = folder ? "Directory" : item.name.split(".")[l.length - 1]
 
 
-      scrollerElement.innerHTML = temp
+                        let onclick = ""
 
-      
-    });
-  }
+                        if (folder) {
+                            onclick = `
+                                onclick="stepTo('${item.name}')"
+                            `
+                        } else if (item.readable) {
+                            onclick = `
+                                onclick="openFile('${item.name}')"
+                            `
+                        }
 
 
 
-  function closeFileLector() {
-    fileLectorElement.classList.remove("actif");
-  }
+                        const template = `
+                            <div class="line" ${onclick}>
+                                <div class="filename">${item.name}</div>
+                                <div class="type">${ext}</div>
+                                <div class="size">${item.size} Kb</div>
+                            </div>
+                        `
 
-  function stepTo(name) {
-    urlElement.textContent += "\\" + name
-
-    getDirectoryContents();
-
-  }
-
-
-  function goback() {
-    let dirPath = urlElement.textContent;
-
-    let parts = dirPath.split("\\");
-    parts.pop(); 
-    dirPath = parts.join("\\");
-
-    urlElement.textContent = dirPath;
-    getDirectoryContents();
-  }
+                        temp += template
+                    })
 
 
-  getCurrentPath();
+                    scrollerElement.innerHTML = temp
 
-</script>
+
+                });
+            }
+
+            function openFile(name) {
+                const filePath = urlElement.textContent + "/" + name;
+                window.api.openFile(filePath).then(content => {
+                    console.log(content);
+
+                    fileContent.scrollTop = 0;
+                    fileContent.textContent = content;
+                    fileLectorElement.classList.add("actif");
+
+                });
+
+            }
+
+
+
+            function closeFileLector() {
+                fileLectorElement.classList.remove("actif");
+            }
+
+            function stepTo(name) {
+                urlElement.textContent += "/" + name
+
+                getDirectoryContents();
+
+            }
+
+
+            function goback() {
+                let dirPath = urlElement.textContent;
+
+                let parts = dirPath.split("/");
+                parts.pop();
+                dirPath = parts.join("/");
+
+                urlElement.textContent = dirPath;
+                getDirectoryContents();
+            }
+
+
+            getCurrentPath();
+
+        </script>
 </body>
+
 </html>

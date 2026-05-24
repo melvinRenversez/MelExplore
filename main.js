@@ -3,10 +3,12 @@ const path = require('path');
 
 console.log(__dirname);
 
+const extReadable = ['.txt', '.md', '.js', '.json', '.html', '.css'];
+
 function createWindow() {
   const win = new BrowserWindow({
-    width: 0,
-    height: 0,
+    width: 900,
+    height: 600,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true
@@ -20,7 +22,7 @@ app.whenReady().then(createWindow);
 
 
 ipcMain.handle('getCurrentPath', async (event, arg) => {
-  return __dirname ;
+  return __dirname;
 });
 
 ipcMain.handle('getDirectoryContents', async (event, dirPath) => {
@@ -33,15 +35,35 @@ ipcMain.handle('getDirectoryContents', async (event, dirPath) => {
       const fullPath = require('path').join(dirPath, name);
       const stats = await fs.stat(fullPath);
 
+      const ext = path.extname(name).toLowerCase();
+      let readable = false;
+
+      if (extReadable.includes(ext)) {
+        readable = true;
+      }
+
       return {
         name,
         path: fullPath,
         isFile: stats.isFile(),
         isDirectory: stats.isDirectory(),
         size: stats.isFile() ? stats.size : "",
+        readable
       };
     })
   );
 
   return result;
+});
+
+ipcMain.handle('openFile', async (event, filePath) => {
+  const fs = require('fs').promises;
+
+  try {
+    const content = await fs.readFile(filePath, 'utf-8');
+    return content;
+  } catch (err) {
+    console.error(`Error reading file ${filePath}:`, err);
+    throw err;
+  }
 });
