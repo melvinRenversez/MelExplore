@@ -7,13 +7,15 @@ const extReadable = ['.txt', '.md', '.js', '.json', '.html', '.css'];
 
 function createWindow() {
   const win = new BrowserWindow({
-    width: 0,
-    height: 0,
+    width: 1500,
+    height: 900,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true
     }
   });
+  
+  win.setMenuBarVisibility(false);
 
   win.loadFile('index.html');
 }
