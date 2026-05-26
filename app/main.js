@@ -14,10 +14,10 @@ function createWindow() {
       contextIsolation: true
     }
   });
-  
+
   win.setMenuBarVisibility(false);
 
-  win.loadFile('index.html');
+  win.loadFile('./public/index.html');
 }
 
 app.whenReady().then(createWindow);
